@@ -1,354 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Fruit Ninja – Simple Clone</title>
-<style>
-  :root {
-    --ui-text:#fff;
-    --shadow:rgba(0,0,0,.35);
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%;margin:0}
-  body{
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-    background: radial-gradient(1200px 800px at 50% 30%, #845321 0%, #5d3816 55%, #3c240e 100%);
-    overflow:hidden;
-    user-select:none;
-    touch-action:none; /* better swipe feel */
-  }
-  #hud{
-    position:fixed; inset:0 0 auto 0; display:flex; gap:18px; align-items:center;
-    padding:14px 16px; color:var(--ui-text); text-shadow:0 2px 6px var(--shadow);
-    font-weight:700; letter-spacing:.5px; pointer-events:none;
-  }
-  #score, #best, #lives {font-size:18px}
-  #lives .life{display:inline-block;width:18px;height:18px;border-radius:50%;
-    margin-left:6px;background:#3af; box-shadow:0 2px 6px var(--shadow) inset, 0 0 6px rgba(0,0,0,.4)}
-  #lives .life.lost{background:#a22}
-  #centerOverlay{
-    position:fixed; inset:0; display:grid; place-items:center;
-    background:rgba(0,0,0,.35); backdrop-filter:saturate(1.2) blur(1px);
-    transition:.25s; z-index:3;
-  }
-  .panel{
-    background:rgba(20,12,6,.75); color:#fff; padding:24px; border-radius:16px;
-    box-shadow:0 12px 40px rgba(0,0,0,.45); text-align:center; min-width:260px;
-  }
-  .title{font-size:28px; margin:0 0 6px}
-  .sub{opacity:.8; margin:0 0 16px}
-  .btn{
-    appearance:none; border:0; border-radius:14px; padding:12px 22px;
-    font-weight:800; letter-spacing:.6px; cursor:pointer;
-    box-shadow:0 10px 25px rgba(0,0,0,.35);
-    background:linear-gradient(180deg,#ffb74d,#ff9800);
-  }
-  canvas{display:block; width:100vw; height:100vh}
-  /* swipe trail glow */
-  .glow{filter: drop-shadow(0 0 6px rgba(255,255,160,.9)) drop-shadow(0 0 14px rgba(255,255,160,.6));}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buy SF Coin - Secure & Future</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background: #0b0f19; color: white; text-align: center; padding: 20px; }
+        .card { background: #151c2c; border: 2px solid #eab308; padding: 20px; border-radius: 16px; max-width: 380px; margin: auto; box-shadow: 0 0 15px rgba(234, 179, 8, 0.3); }
+        .logo { width: 140px; height: 140px; border-radius: 50%; border: 3px solid #eab308; margin-bottom: 10px; }
+        h2 { color: #facc15; margin: 5px 0; }
+        .info { background: #1e293b; padding: 12px; border-radius: 8px; margin: 15px 0; font-size: 14px; border: 1px solid #334155; }
+        button { background: linear-gradient(135deg, #eab308, #ca8a04); color: black; font-weight: bold; border: none; padding: 14px; width: 100%; border-radius: 8px; font-size: 16px; cursor: pointer; margin-top: 8px; }
+        #status { font-size: 13px; color: #38bdf8; margin-top: 15px; word-break: break-all; }
+        .lock-notice { color: #ef4444; font-size: 12px; margin-top: 10px; font-weight: bold; }
+    </style>
 </head>
 <body>
-  <div id="hud">
-    <div id="score">Score: 0</div>
-    <div id="best">Best: 0</div>
-    <div id="lives">Lives:
-      <span class="life" id="life1"></span>
-      <span class="life" id="life2"></span>
-      <span class="life" id="life3"></span>
-    </div>
-  </div>
 
-  <div id="centerOverlay">
-    <div class="panel">
-      <h1 class="title">Fruit Ninja (Mini)</h1>
-      <p class="sub">Swipe to cut fruits • Bomb cut = -10 score • 3 bombs = restart</p>
-      <button id="startBtn" class="btn">START GAME</button>
-    </div>
-  </div>
+<div class="card">
+    <img src="https://i.ibb.co/SF-Coin-Logo.png" alt="SF Coin" class="logo">
+    
+    <h2>SECURE & FUTURE (SF)</h2>
+    <p style="font-size:12px; color:#94a3b8;">SAFE TODAY • STRONG TOMORROW</p>
 
-  <canvas id="game"></canvas>
+    <div class="info">
+        <p style="margin:3px 0;"><b>Offer:</b> ₹200 = 100 SF Coins</p>
+        <p style="margin:3px 0; color:#4ade80;"><b>Payment:</b> ~2.30 USDT</p>
+        <p style="margin:3px 0; color:#facc15;"><b>Rate Increase:</b> +₹0.0003 / Buy</p>
+    </div>
+
+    <button onclick="connectWallet()">1. Connect Wallet</button>
+    <br>
+    <button onclick="payUSDT()">2. Pay 2.30 USDT (₹200) & Buy</button>
+
+    <div class="lock-notice">🔒 Purchased coins will be LOCKED for 12 Months.</div>
+    <p id="status"></p>
+</div>
 
 <script>
-(() => {
-  const canvas = document.getElementById('game');
-  const ctx = canvas.getContext('2d');
-  function resize(){ canvas.width = innerWidth; canvas.height = innerHeight; }
-  addEventListener('resize', resize, {passive:true});
-  resize();
+    // Aapka Image se mila USDT Receiver Wallet Address
+    const MY_USDT_RECEIVER = "0x00f8a228207dd6dF2De6b02a0c8E14537FB5364b"; 
 
-  // --- Game state ---
-  let running = false;
-  let score = 0, best = 0;
-  let lives = 3;
-  let spawnTimer = 0, spawnEvery = 650; // ms
-  let entities = []; // fruits + bombs + particles
-  const GRAVITY = 0.35;
+    // USDT Contract Address (Default ERC20 Tether)
+    const USDT_CONTRACT = "0xdAC17F958D2ee523a2206206994597C13D831ec7"; 
 
-  const fruitsList = [
-    {name:'apple',  color:'#ff4d4d'},
-    {name:'lime',   color:'#36d866'},
-    {name:'orange', color:'#ffb74d'},
-    {name:'plum',   color:'#c266ff'},
-    {name:'melon',  color:'#39c06b'},
-    {name:'pear',   color:'#a6e147'},
-    {name:'pine',   color:'#f6d365'}
-  ];
+    let userAddress = "";
+    let provider, signer;
 
-  // --- Input (mouse + touch) ---
-  let pointer = {x:0,y:0, active:false};
-  let trail = []; // last N points for swipe effect & collision segment
-  const TRAIL_KEEP_MS = 180;
-
-  function setPointer(x,y,down){
-    pointer.x = x; pointer.y = y; pointer.active = down ?? pointer.active;
-    trail.push({x,y,t:performance.now()});
-  }
-  canvas.addEventListener('pointerdown', e => { setPointer(e.clientX,e.clientY,true); });
-  canvas.addEventListener('pointermove', e => { setPointer(e.clientX,e.clientY); });
-  addEventListener('pointerup',   () => { pointer.active=false; });
-
-  // --- Helpers ---
-  const rand = (a,b)=> a+Math.random()*(b-a);
-  const chance = p => Math.random() < p;
-  const dist2 = (x1,y1,x2,y2)=> (x1-x2)*(x1-x2)+(y1-y2)*(y1-y2);
-
-  // Line-circle hit test (segment vs circle)
-  function lineCircleHit(x1,y1,x2,y2, cx,cy, r){
-    // quick reject
-    const r2 = r*r;
-    if (dist2(cx,cy,x1,y1) <= r2 || dist2(cx,cy,x2,y2) <= r2) return true;
-    const dx=x2-x1, dy=y2-y1;
-    const len2=dx*dx+dy*dy; if(!len2) return false;
-    let t = ((cx-x1)*dx+(cy-y1)*dy)/len2; t=Math.max(0,Math.min(1,t));
-    const px = x1+t*dx, py = y1+t*dy;
-    return dist2(cx,cy,px,py) <= r2;
-  }
-
-  // --- Entities ---
-  function spawnOne(){
-    const fromX = rand(80, canvas.width-80);
-    const fromY = canvas.height + 40;
-    const speedY = rand(-16,-22);
-    const speedX = rand(-7,7);
-
-    if (chance(0.17)) {
-      // Bomb
-      entities.push({
-        kind:'bomb', x:fromX, y:fromY, vx:speedX, vy:speedY, r:32, rot:rand(0,Math.PI*2),
-        alive:true
-      });
-    } else {
-      const f = fruitsList[Math.floor(rand(0, fruitsList.length))];
-      entities.push({
-        kind:'fruit', x:fromX, y:fromY, vx:speedX, vy:speedY, r:30, rot:rand(0,Math.PI*2),
-        color:f.color, name:f.name, alive:true, split:false
-      });
-    }
-  }
-
-  function addExplosion(x,y, big=false){
-    const n = big? 36 : 18;
-    for(let i=0;i<n;i++){
-      entities.push({
-        kind:'particle', x, y,
-        vx: Math.cos(i/n*2*Math.PI)*rand(2, big?9:6),
-        vy: Math.sin(i/n*2*Math.PI)*rand(2, big?9:6),
-        life: rand(350,700), born: performance.now(),
-        r: rand(2, big?6:4), color: big? '#ffd54f' : '#fff176'
-      });
-    }
-  }
-
-  // --- Game loop ---
-  let last = performance.now();
-  function loop(now){
-    if(!running){ requestAnimationFrame(loop); return; }
-    const dt = Math.min(48, now-last); last = now;
-    spawnTimer += dt;
-    if (spawnTimer >= spawnEvery){
-      spawnTimer = 0;
-      const count = Math.random()<0.25 ? 2 : 1; // sometimes double spawn
-      for(let i=0;i<count;i++) spawnOne();
-    }
-
-    // physics update
-    entities.forEach(e=>{
-      if(!e.alive) return;
-      if (e.kind==='fruit' || e.kind==='bomb'){
-        e.x += e.vx; e.y += e.vy; e.vy += GRAVITY; e.rot += 0.03;
-        if (e.y - e.r > canvas.height + 80) e.alive=false;
-      } else if (e.kind==='particle'){
-        e.x += e.vx; e.y += e.vy; e.vy += 0.08;
-        if (now - e.born > e.life) e.alive=false;
-      }
-    });
-    entities = entities.filter(e=>e.alive);
-
-    // trail trim
-    const cutoff = now - TRAIL_KEEP_MS;
-    while(trail.length && trail[0].t < cutoff) trail.shift();
-
-    // slicing (use last trail segment)
-    if (trail.length >= 2){
-      const a = trail[trail.length-2], b = trail[trail.length-1];
-      for (const e of entities){
-        if ((e.kind==='fruit' || e.kind==='bomb') && e.alive){
-          if (lineCircleHit(a.x,a.y,b.x,b.y, e.x,e.y, e.r)){
-            e.alive=false;
-            if (e.kind==='fruit'){
-              score += 5;
-              addExplosion(e.x,e.y);
-            } else {
-              // Bomb penalty
-              score = Math.max(0, score - 10);
-              addExplosion(e.x, e.y, true);
-              loseLife();
-            }
-            updateHUD();
-          }
+    async function connectWallet() {
+        if (window.ethereum) {
+            provider = new ethers.providers.Web3Provider(window.ethereum);
+            const accounts = await provider.send("eth_requestAccounts", []);
+            signer = provider.getSigner();
+            userAddress = accounts[0];
+            document.getElementById("status").innerText = "Connected: " + userAddress.substring(0,6) + "..." + userAddress.substring(38);
+        } else {
+            alert("Trust Wallet ya MetaMask browser me open karein!");
         }
-      }
     }
 
-    // draw
-    draw();
+    async function payUSDT() {
+        if (!userAddress) {
+            alert("Pehle Wallet Connect karein!");
+            return;
+        }
 
-    requestAnimationFrame(loop);
-  }
+        try {
+            document.getElementById("status").innerText = "Processing Payment...";
+            
+            const usdtAbi = ["function transfer(address to, uint256 amount) returns (bool)"];
+            const usdtContract = new ethers.Contract(USDT_CONTRACT, usdtAbi, signer);
 
-  // --- Draw ---
-  function draw(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
+            // 2.30 USDT (ERC20 uses 6 decimals)
+            const amountInUnits = ethers.utils.parseUnits("2.30", 6);
 
-    // wood backdrop scratches
-    ctx.save();
-    for(let i=0;i<6;i++){
-      ctx.globalAlpha = 0.05;
-      ctx.strokeStyle = '#000';
-      ctx.beginPath();
-      ctx.moveTo(rand(0,canvas.width), rand(0,canvas.height));
-      ctx.lineTo(rand(0,canvas.width), rand(0,canvas.height));
-      ctx.stroke();
+            const tx = await usdtContract.transfer(MY_USDT_RECEIVER, amountInUnits);
+            document.getElementById("status").innerText = "Tx Sent! Waiting... Tx Hash: " + tx.hash;
+
+            await tx.wait();
+            document.getElementById("status").innerText = "✅ Payment Successful! 100 SF Coins locked for 12 Months.";
+        } catch (error) {
+            console.error(error);
+            document.getElementById("status").innerText = "❌ Payment Failed / Cancelled.";
+        }
     }
-    ctx.restore();
-
-    // entities
-    entities.forEach(e=>{
-      if (e.kind==='fruit'){
-        ctx.save();
-        ctx.translate(e.x,e.y);
-        ctx.rotate(e.rot);
-        // body
-        ctx.fillStyle = e.color;
-        ctx.beginPath(); ctx.arc(0,0,e.r,0,Math.PI*2); ctx.fill();
-        // highlight
-        const grd = ctx.createRadialGradient(-12,-12,6, 0,0,e.r);
-        grd.addColorStop(0,'#ffffffaa'); grd.addColorStop(1,'#ffffff00');
-        ctx.fillStyle = grd; ctx.beginPath(); ctx.arc(0,0,e.r,0,Math.PI*2); ctx.fill();
-        ctx.restore();
-      } else if (e.kind==='bomb'){
-        ctx.save();
-        ctx.translate(e.x,e.y);
-        ctx.rotate(e.rot);
-        // body
-        ctx.fillStyle = '#222';
-        ctx.beginPath(); ctx.arc(0,0,e.r,0,Math.PI*2); ctx.fill();
-        // fuse
-        ctx.strokeStyle = '#bca37a'; ctx.lineWidth = 3;
-        ctx.beginPath(); ctx.moveTo(0,-e.r); ctx.quadraticCurveTo(10,-e.r-18,16,-e.r-28); ctx.stroke();
-        // spark
-        ctx.fillStyle = '#ffd54f';
-        ctx.beginPath(); ctx.arc(16,-e.r-28,5,0,Math.PI*2); ctx.fill();
-        ctx.restore();
-      } else if (e.kind==='particle'){
-        ctx.globalAlpha = 0.9;
-        ctx.fillStyle = e.color;
-        ctx.beginPath(); ctx.arc(e.x,e.y,e.r,0,Math.PI*2); ctx.fill();
-        ctx.globalAlpha = 1;
-      }
-    });
-
-    // swipe trail
-    if (trail.length>=2){
-      ctx.lineJoin = 'round';
-      ctx.lineCap  = 'round';
-      ctx.lineWidth = 10;
-      ctx.strokeStyle = 'rgba(255,255,190,.85)';
-      ctx.beginPath();
-      for (let i=0;i<trail.length;i++){
-        const p = trail[i];
-        (i? ctx.lineTo : ctx.moveTo).call(ctx, p.x,p.y);
-      }
-      ctx.stroke();
-      // glow duplicates
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = 'rgba(255,255,90,1)';
-      ctx.stroke();
-    }
-  }
-
-  // --- HUD / Lives ---
-  function updateHUD(){
-    document.getElementById('score').textContent = `Score: ${score}`;
-    document.getElementById('best').textContent  = `Best: ${best}`;
-    for(let i=1;i<=3;i++){
-      const el = document.getElementById('life'+i);
-      el.classList.toggle('lost', i > lives);
-    }
-  }
-
-  function loseLife(){
-    lives--;
-    if (lives <= 0){
-      // game over -> quick overlay + auto restart
-      best = Math.max(best, score);
-      updateHUD();
-      showMessage(`Game Over`, `Final: ${score}  •  Best: ${best}`);
-      setTimeout(restartToMenu, 1200);
-    }
-  }
-
-  // --- Start/Restart ---
-  const overlay = document.getElementById('centerOverlay');
-  const startBtn = document.getElementById('startBtn');
-
-  function showMessage(title, sub){
-    overlay.style.display = 'grid';
-    overlay.querySelector('.title').textContent = title;
-    overlay.querySelector('.sub').textContent = sub || '';
-    startBtn.style.display = 'none';
-  }
-  function hideOverlay(){ overlay.style.display = 'none'; }
-
-  function resetGameplay(){
-    entities.length = 0;
-    score = 0; lives = 3; spawnTimer = 0;
-    updateHUD();
-    trail.length = 0;
-  }
-  function startGame(){
-    resetGameplay();
-    hideOverlay();
-    running = true;
-    last = performance.now();
-  }
-  function restartToMenu(){
-    running = false;
-    resetGameplay();
-    overlay.style.display = 'grid';
-    overlay.querySelector('.title').textContent = 'Fruit Ninja (Mini)';
-    overlay.querySelector('.sub').textContent = 'Swipe to cut fruits • Bomb cut = -10 • 3 bombs = restart';
-    startBtn.style.display = 'inline-block';
-  }
-
-  startBtn.addEventListener('click', startGame);
-
-  // init HUD & loop
-  updateHUD();
-  requestAnimationFrame(loop);
-})();
 </script>
+
 </body>
 </html>
