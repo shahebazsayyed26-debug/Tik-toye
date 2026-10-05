@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Buy SF Coin - Secure & Future</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
     <style>
         body { font-family: Arial, sans-serif; background: #0b0f19; color: white; text-align: center; padding: 20px; }
         .card { background: #151c2c; border: 2px solid #eab308; padding: 20px; border-radius: 16px; max-width: 380px; margin: auto; box-shadow: 0 0 15px rgba(234, 179, 8, 0.3); }
@@ -39,24 +40,35 @@
 </div>
 
 <script>
-    // Aapka Image se mila USDT Receiver Wallet Address
     const MY_USDT_RECEIVER = "0x00f8a228207dd6dF2De6b02a0c8E14537FB5364b"; 
-
-    // USDT Contract Address (Default ERC20 Tether)
     const USDT_CONTRACT = "0xdAC17F958D2ee523a2206206994597C13D831ec7"; 
 
     let userAddress = "";
     let provider, signer;
 
     async function connectWallet() {
-        if (window.ethereum) {
-            provider = new ethers.providers.Web3Provider(window.ethereum);
-            const accounts = await provider.send("eth_requestAccounts", []);
-            signer = provider.getSigner();
-            userAddress = accounts[0];
+        try {
+            // Agar browser me wallet (MetaMask/TrustWallet DApp) hai
+            if (window.ethereum) {
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                const accounts = await provider.send("eth_requestAccounts", []);
+                signer = provider.getSigner();
+                userAddress = accounts[0];
+            } else {
+                // Agar Telegram WebApp ya Chrome me khola hai (WalletConnect support)
+                const walletConnectProvider = new WalletConnectProvider.default({
+                    rpc: { 1: "https://cloudflare-eth.com" }
+                });
+                await walletConnectProvider.enable();
+                provider = new ethers.providers.Web3Provider(walletConnectProvider);
+                signer = provider.getSigner();
+                userAddress = await signer.getAddress();
+            }
+
             document.getElementById("status").innerText = "Connected: " + userAddress.substring(0,6) + "..." + userAddress.substring(38);
-        } else {
-            alert("Trust Wallet ya MetaMask browser me open karein!");
+        } catch (error) {
+            console.error(error);
+            document.getElementById("status").innerText = "❌ Wallet connection failed or cancelled.";
         }
     }
 
@@ -72,7 +84,6 @@
             const usdtAbi = ["function transfer(address to, uint256 amount) returns (bool)"];
             const usdtContract = new ethers.Contract(USDT_CONTRACT, usdtAbi, signer);
 
-            // 2.30 USDT (ERC20 uses 6 decimals)
             const amountInUnits = ethers.utils.parseUnits("2.30", 6);
 
             const tx = await usdtContract.transfer(MY_USDT_RECEIVER, amountInUnits);
