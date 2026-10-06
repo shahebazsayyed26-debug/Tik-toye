@@ -1,102 +1,101 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buy SF Coin - Secure & Future</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
-    <style>
-        body { font-family: Arial, sans-serif; background: #0b0f19; color: white; text-align: center; padding: 20px; }
-        .card { background: #151c2c; border: 2px solid #eab308; padding: 20px; border-radius: 16px; max-width: 380px; margin: auto; box-shadow: 0 0 15px rgba(234, 179, 8, 0.3); }
-        .logo { width: 140px; height: 140px; border-radius: 50%; border: 3px solid #eab308; margin-bottom: 10px; }
-        h2 { color: #facc15; margin: 5px 0; }
-        .info { background: #1e293b; padding: 12px; border-radius: 8px; margin: 15px 0; font-size: 14px; border: 1px solid #334155; }
-        button { background: linear-gradient(135deg, #eab308, #ca8a04); color: black; font-weight: bold; border: none; padding: 14px; width: 100%; border-radius: 8px; font-size: 16px; cursor: pointer; margin-top: 8px; }
-        #status { font-size: 13px; color: #38bdf8; margin-top: 15px; word-break: break-all; }
-        .lock-notice { color: #ef4444; font-size: 12px; margin-top: 10px; font-weight: bold; }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Secure Future Coin — Demo</title>
+<style>
+:root{--bg:#070b16;--card:#10182b;--card2:#0d1323;--text:#eef4ff;--muted:#8fa0bd;--cyan:#55e7ff;--blue:#6d7cff;--green:#39e58c;--red:#ff637f;--line:#1c2942}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:radial-gradient(circle at 20% 0,#17214a 0,#070b16 42%),var(--bg);color:var(--text)}
+button,input{font:inherit}.app{max-width:1180px;margin:auto;padding:18px}
+nav{display:flex;align-items:center;justify-content:space-between;padding:10px 0 24px}.brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:.4px}.logo{width:45px;height:45px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,#55e7ff,#6d7cff 55%,#9c5cff);box-shadow:0 0 30px #596dff55;font-weight:1000}.navbtns{display:flex;gap:8px}
+.btn{border:0;border-radius:12px;padding:12px 17px;color:white;background:#18233a;cursor:pointer}.btn.primary{background:linear-gradient(135deg,#5b75ff,#6b4dff);box-shadow:0 8px 25px #604dff33}.btn.green{background:linear-gradient(135deg,#19b86d,#35e292)}.btn:active{transform:scale(.98)}
+.hero{display:grid;grid-template-columns:1.3fr .7fr;gap:18px}.panel{background:linear-gradient(180deg,#111b31dd,#0b1222dd);border:1px solid #243250;border-radius:24px;padding:26px;box-shadow:0 18px 70px #0004;backdrop-filter:blur(10px)}
+.badge{display:inline-flex;gap:7px;align-items:center;padding:7px 11px;border-radius:99px;background:#172641;color:#8feaff;font-size:12px;font-weight:800}.dot{width:7px;height:7px;background:#3fe596;border-radius:50%;box-shadow:0 0 12px #3fe596}
+h1{font-size:clamp(38px,6vw,70px);line-height:.98;margin:18px 0 14px;letter-spacing:-2px}h2{margin:0 0 8px}.grad{background:linear-gradient(90deg,#fff,#55e7ff 48%,#8b72ff);-webkit-background-clip:text;background-clip:text;color:transparent}.lead{color:#aab8d0;font-size:17px;line-height:1.65;max-width:720px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}.coinbox{display:flex;align-items:center;gap:14px}.biglogo{width:82px;height:82px;border-radius:25px;font-size:28px}.price{font-size:38px;font-weight:900;margin:4px 0}.up{color:var(--green);font-weight:800}.small{font-size:12px;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}.stat{background:#0b1220;border:1px solid #1e2a43;border-radius:16px;padding:16px}.stat b{display:block;font-size:20px;margin-top:4px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}.chart{height:250px;position:relative;overflow:hidden;border-radius:16px;background:#09101d;border:1px solid #1c2940}.chart svg{width:100%;height:100%}.chartlabel{position:absolute;left:12px;top:10px;color:#7386a7;font-size:12px}
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:15px}.feature{padding:16px;background:#0b1220;border:1px solid #1c2940;border-radius:15px}.feature b{display:block;margin-bottom:5px}.feature span{color:#8798b5;font-size:13px;line-height:1.5}
+footer{color:#657792;text-align:center;padding:30px 0 10px;font-size:12px}
+.modal{position:fixed;inset:0;background:#02040bb8;display:none;align-items:center;justify-content:center;padding:18px;z-index:10}.modal.show{display:flex}.modalbox{width:min(440px,100%);background:#10182a;border:1px solid #2b3b5e;border-radius:24px;padding:24px;box-shadow:0 30px 100px #0008}.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.close{background:transparent;color:#91a2bf;border:0;font-size:25px;cursor:pointer}label{display:block;color:#9eacc4;font-size:13px;margin:12px 0 6px}input{width:100%;padding:13px 14px;border-radius:12px;border:1px solid #293957;background:#090f1d;color:white;outline:none}.wallets{display:grid;grid-template-columns:1fr 1fr;gap:10px}.wallet{padding:16px;text-align:left;background:#0a1120;border:1px solid #263553;color:white;border-radius:14px;cursor:pointer}.notice{padding:12px;border-radius:12px;background:#151f35;color:#a9bad6;font-size:13px;line-height:1.5;margin:12px 0}.buyrow{display:flex;gap:10px}.buyrow input{flex:1}.toast{position:fixed;right:18px;bottom:18px;background:#121d31;border:1px solid #304364;padding:14px 17px;border-radius:15px;display:none;z-index:20;box-shadow:0 15px 50px #0008}.toast.show{display:block}
+@media(max-width:800px){.hero,.grid{grid-template-columns:1fr}.features{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr 1fr}.navbtns .hide{display:none}}
+</style>
 </head>
 <body>
+<div class="app">
+<nav>
+ <div class="brand"><div class="logo">S</div><div>SECURE FUTURE<br><span class="small">SFC • DEMO</span></div></div>
+ <div class="navbtns"><button class="btn hide" onclick="openModal('login')">Login</button><button class="btn primary" onclick="openModal('buy')">Buy SFC</button></div>
+</nav>
 
-<div class="card">
-    <img src="https://i.ibb.co/SF-Coin-Logo.png" alt="SF Coin" class="logo">
-    
-    <h2>SECURE & FUTURE (SF)</h2>
-    <p style="font-size:12px; color:#94a3b8;">SAFE TODAY • STRONG TOMORROW</p>
+<section class="hero">
+ <div class="panel">
+  <span class="badge"><span class="dot"></span> DEMO • Secure Future Coin</span>
+  <h1>Build your <span class="grad">future</span> with SFC.</h1>
+  <p class="lead">A modern crypto-project landing experience designed for community, transparency and a smooth token-buying journey. This demo shows the UI only; no real funds are moved.</p>
+  <div class="actions">
+   <button class="btn primary" onclick="openModal('buy')">🚀 Buy SFC</button>
+   <button class="btn" onclick="connectTelegram()">✈️ Connect Telegram</button>
+   <button class="btn" onclick="openModal('wallet')">🔗 Connect Wallet</button>
+  </div>
+  <div class="features">
+   <div class="feature"><b>🔐 Secure-first</b><span>Wallet connection and payment flow can be added later.</span></div>
+   <div class="feature"><b>⚡ Fast experience</b><span>Mobile-first interface for Telegram and web users.</span></div>
+   <div class="feature"><b>🌍 Community</b><span>Telegram, announcements and token information in one place.</span></div>
+  </div>
+ </div>
+ <div class="panel">
+  <div class="coinbox"><div class="logo biglogo">SFC</div><div><div class="small">SFC PRICE • DEMO</div><div class="price">$0.0124</div><div class="up">▲ +8.42% today</div></div></div>
+  <div class="stats">
+   <div class="stat"><span class="small">Market Cap</span><b>$1.24M</b></div>
+   <div class="stat"><span class="small">Holders</span><b>8,421</b></div>
+   <div class="stat"><span class="small">Supply</span><b>100M</b></div>
+  </div>
+  <div class="chart">
+   <span class="chartlabel">SFC / USD • Demo chart</span>
+   <svg viewBox="0 0 500 230" preserveAspectRatio="none">
+    <defs><linearGradient id="g" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-opacity=".32"/><stop offset="1" stop-opacity="0"/></linearGradient></defs>
+    <path d="M0 190 L45 174 L80 181 L112 150 L145 162 L175 132 L210 144 L245 110 L280 128 L315 88 L350 103 L380 70 L420 92 L455 47 L500 28 L500 230 L0 230Z" fill="url(#g)"/>
+    <path d="M0 190 L45 174 L80 181 L112 150 L145 162 L175 132 L210 144 L245 110 L280 128 L315 88 L350 103 L380 70 L420 92 L455 47 L500 28" fill="none" stroke="#55e7ff" stroke-width="4"/>
+   </svg>
+  </div>
+ </div>
+</section>
 
-    <div class="info">
-        <p style="margin:3px 0;"><b>Offer:</b> ₹200 = 100 SF Coins</p>
-        <p style="margin:3px 0; color:#4ade80;"><b>Payment:</b> ~2.30 USDT</p>
-        <p style="margin:3px 0; color:#facc15;"><b>Rate Increase:</b> +₹0.0003 / Buy</p>
-    </div>
+<section class="grid">
+ <div class="panel">
+  <h2>Buy SFC</h2><p class="small">Demo purchase calculator</p>
+  <div class="buyrow"><input id="usd" type="number" min="1" value="50" oninput="calc()"><button class="btn green" onclick="openModal('buy')">Continue</button></div>
+  <div class="notice">Estimated SFC: <b id="estimate">4,032.26 SFC</b><br>Demo price: $0.0124 • No blockchain transaction is made.</div>
+ </div>
+ <div class="panel">
+  <h2>Join the community</h2><p class="lead" style="font-size:14px">Connect Telegram for announcements and open your wallet when the real launch is ready.</p>
+  <div class="actions"><button class="btn" onclick="connectTelegram()">✈️ Telegram</button><button class="btn" onclick="openModal('wallet')">🔗 Wallet</button><button class="btn" onclick="toast('Contract explorer is demo-only right now.')">🔎 Explorer</button></div>
+ </div>
+</section>
 
-    <button onclick="connectWallet()">1. Connect Wallet</button>
-    <br>
-    <button onclick="payUSDT()">2. Pay 2.30 USDT (₹200) & Buy</button>
-
-    <div class="lock-notice">🔒 Purchased coins will be LOCKED for 12 Months.</div>
-    <p id="status"></p>
+<footer>Secure Future Coin • DEMO WEBSITE • Not a real investment offer • No real payments or withdrawals are enabled.</footer>
 </div>
 
+<div class="modal" id="login"><div class="modalbox"><div class="modalhead"><h2>Welcome back 👋</h2><button class="close" onclick="closeAll()">×</button></div><label>Email / Username</label><input placeholder="Enter username"><label>Password</label><input type="password" placeholder="••••••••"><div class="actions"><button class="btn primary" style="width:100%" onclick="demoLogin()">Login to Demo</button></div><div class="notice">Demo authentication only. Real accounts require a secure backend.</div></div></div>
+
+<div class="modal" id="wallet"><div class="modalbox"><div class="modalhead"><h2>Connect Wallet 🔗</h2><button class="close" onclick="closeAll()">×</button></div><div class="wallets"><button class="wallet" onclick="walletConnect('MetaMask')">🦊<br><b>MetaMask</b><br><span class="small">Demo</span></button><button class="wallet" onclick="walletConnect('Trust Wallet')">🛡️<br><b>Trust Wallet</b><br><span class="small">Demo</span></button><button class="wallet" onclick="walletConnect('WalletConnect')">🔗<br><b>WalletConnect</b><br><span class="small">Demo</span></button><button class="wallet" onclick="walletConnect('Telegram Wallet')">✈️<br><b>Telegram Wallet</b><br><span class="small">Demo</span></button></div><div class="notice">This demo never asks for a seed phrase or private key.</div></div></div>
+
+<div class="modal" id="buy"><div class="modalbox"><div class="modalhead"><h2>Buy SFC 🚀</h2><button class="close" onclick="closeAll()">×</button></div><label>Amount (USD)</label><input id="buyamount" type="number" min="1" value="50" oninput="buyCalc()"><div class="notice">You receive approximately <b id="buycoins">4,032.26 SFC</b> at the demo rate of $0.0124.</div><div class="actions"><button class="btn" onclick="walletConnect('Wallet')">🔗 Connect Wallet</button><button class="btn" onclick="connectTelegram()">✈️ Telegram</button><button class="btn green" onclick="demoPurchase()">Confirm Demo Buy</button></div></div></div>
+
+<div class="toast" id="toast"></div>
 <script>
-    const MY_USDT_RECEIVER = "0x00f8a228207dd6dF2De6b02a0c8E14537FB5364b"; 
-    const USDT_CONTRACT = "0xdAC17F958D2ee523a2206206994597C13D831ec7"; 
-
-    let userAddress = "";
-    let provider, signer;
-
-    async function connectWallet() {
-        try {
-            // Agar browser me wallet (MetaMask/TrustWallet DApp) hai
-            if (window.ethereum) {
-                provider = new ethers.providers.Web3Provider(window.ethereum);
-                const accounts = await provider.send("eth_requestAccounts", []);
-                signer = provider.getSigner();
-                userAddress = accounts[0];
-            } else {
-                // Agar Telegram WebApp ya Chrome me khola hai (WalletConnect support)
-                const walletConnectProvider = new WalletConnectProvider.default({
-                    rpc: { 1: "https://cloudflare-eth.com" }
-                });
-                await walletConnectProvider.enable();
-                provider = new ethers.providers.Web3Provider(walletConnectProvider);
-                signer = provider.getSigner();
-                userAddress = await signer.getAddress();
-            }
-
-            document.getElementById("status").innerText = "Connected: " + userAddress.substring(0,6) + "..." + userAddress.substring(38);
-        } catch (error) {
-            console.error(error);
-            document.getElementById("status").innerText = "❌ Wallet connection failed or cancelled.";
-        }
-    }
-
-    async function payUSDT() {
-        if (!userAddress) {
-            alert("Pehle Wallet Connect karein!");
-            return;
-        }
-
-        try {
-            document.getElementById("status").innerText = "Processing Payment...";
-            
-            const usdtAbi = ["function transfer(address to, uint256 amount) returns (bool)"];
-            const usdtContract = new ethers.Contract(USDT_CONTRACT, usdtAbi, signer);
-
-            const amountInUnits = ethers.utils.parseUnits("2.30", 6);
-
-            const tx = await usdtContract.transfer(MY_USDT_RECEIVER, amountInUnits);
-            document.getElementById("status").innerText = "Tx Sent! Waiting... Tx Hash: " + tx.hash;
-
-            await tx.wait();
-            document.getElementById("status").innerText = "✅ Payment Successful! 100 SF Coins locked for 12 Months.";
-        } catch (error) {
-            console.error(error);
-            document.getElementById("status").innerText = "❌ Payment Failed / Cancelled.";
-        }
-    }
+const PRICE=.0124;
+function openModal(id){document.getElementById(id).classList.add('show')}
+function closeAll(){document.querySelectorAll('.modal').forEach(x=>x.classList.remove('show'))}
+function toast(msg){let t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600)}
+function calc(){let v=+document.getElementById('usd').value||0;document.getElementById('estimate').textContent=(v/PRICE).toLocaleString(undefined,{maximumFractionDigits:2})+' SFC'}
+function buyCalc(){let v=+document.getElementById('buyamount').value||0;document.getElementById('buycoins').textContent=(v/PRICE).toLocaleString(undefined,{maximumFractionDigits:2})+' SFC'}
+function connectTelegram(){closeAll();toast('✈️ Telegram connection demo successful!')}
+function walletConnect(name){closeAll();toast('🔗 '+name+' wallet connection is demo-only.')}
+function demoLogin(){closeAll();toast('✅ Demo login successful!')}
+function demoPurchase(){closeAll();toast('🎉 Demo purchase complete — no real payment was made.')}
+document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeAll()}));calc();
 </script>
-
 </body>
 </html>
