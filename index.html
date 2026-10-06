@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#07111f">
 <title>SFC Coin — Secure Future Coin</title>
 
-<!-- Modern Web3 Provider (Ethers v5) -->
+<!-- Ethers JS Library -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 
 <style>
@@ -86,6 +86,59 @@ header{
     margin-bottom:12px;
 }
 
+/* Form Styles */
+.form-group{
+    margin-bottom:15px;
+    text-align:left;
+}
+
+.form-group label{
+    display:block;
+    font-size:12px;
+    color:var(--muted);
+    margin-bottom:6px;
+}
+
+.form-input{
+    width:100%;
+    padding:14px;
+    border-radius:12px;
+    background:rgba(7,18,31,.9);
+    border:1px solid var(--border);
+    color:var(--text);
+    font-size:14px;
+    outline:none;
+}
+
+.form-input:focus{
+    border-color:#20e0ff;
+}
+
+/* On-Screen Coin Display */
+.user-dashboard{
+    background:rgba(32,224,255,.06);
+    border:1px solid rgba(32,224,255,.2);
+    border-radius:18px;
+    padding:16px;
+    margin-top:10px;
+    margin-bottom:16px;
+    text-align:center;
+}
+
+.balance-title{
+    font-size:11px;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:1px;
+}
+
+.balance-amount{
+    font-size:32px;
+    font-weight:900;
+    color:var(--green);
+    margin:4px 0;
+}
+
 .info-box{
     background:rgba(7,18,31,.8);
     border:1px solid var(--border);
@@ -117,11 +170,6 @@ header{
     font-size:15px;
 }
 
-.primary-btn:disabled{
-    opacity:0.5;
-    cursor:not-allowed;
-}
-
 #status{
     font-size:12px;
     color:#38bdf8;
@@ -137,6 +185,10 @@ header{
     margin-top:12px;
     font-weight:bold;
 }
+
+.hidden{
+    display:none !important;
+}
 </style>
 </head>
 
@@ -150,9 +202,38 @@ header{
         <p style="color:var(--muted); font-size:12px; margin-top:4px;">SAFE TODAY • STRONG TOMORROW</p>
     </header>
 
-    <div class="card">
+    <!-- SECTION 1: FIRST PAGE (LOGIN FORM) -->
+    <div class="card" id="loginPage">
+        <div style="text-align:center; margin-bottom:20px;">
+            <h3>Account Login</h3>
+            <p style="font-size:12px; color:var(--muted); margin-top:4px;">Enter details to access SF Presale</p>
+        </div>
+
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label>Email / Username</label>
+                <input type="text" id="username" class="form-input" placeholder="Enter your username" required>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" class="form-input" placeholder="Enter your password" required>
+            </div>
+
+            <button type="submit" class="primary-btn">Login to Dashboard →</button>
+        </form>
+    </div>
+
+    <!-- SECTION 2: INSIDE DASHBOARD (BUY PAGE) -->
+    <div class="card hidden" id="dashboardPage">
         <div style="text-align:center;">
             <span class="badge">● PRESALE LIVE (BEP-20)</span>
+        </div>
+
+        <!-- 0 COIN DASHBOARD -->
+        <div class="user-dashboard">
+            <div class="balance-title">YOUR SF COIN BALANCE</div>
+            <div class="balance-amount" id="userCoinBalance">0 SF</div>
+            <div style="font-size:11px; color:var(--muted);" id="userWalletAddr">Wallet Not Connected</div>
         </div>
 
         <div class="info-box">
@@ -173,29 +254,55 @@ header{
         <button class="primary-btn" id="connectBtn" onclick="connectWallet()">1. Connect Wallet</button>
         <button class="primary-btn" id="payBtn" onclick="payUSDT()" style="background:linear-gradient(100deg,#ffd35a,#ffb703);">2. Pay 2.30 USDT & Buy</button>
 
-        <div id="status">Click "Connect Wallet" to start</div>
+        <div id="status">Connect wallet & pay to buy SF Coins</div>
         <div class="lock-notice">🔒 All purchased coins are LOCKED for 12 Months.</div>
     </div>
 
 </div>
 
 <script>
-    // Config
     const RECEIVER_WALLET = "0x00f8a228207dd6dF2De6b02a0c8E14537FB5364b"; 
     const USDT_BSC_CONTRACT = "0x55d398326f99059fF775485246999027B3197955"; 
 
-    let provider, signer, userAddress;
+    let provider, signer, userAddress, loggedInUser = "";
 
+    // Step 1: Login Handler
+    function handleLogin(e) {
+        e.preventDefault();
+        const user = document.getElementById("username").value;
+        if(user) {
+            loggedInUser = user.toLowerCase().trim();
+            document.getElementById("loginPage").classList.add("hidden");
+            document.getElementById("dashboardPage").classList.remove("hidden");
+            updateCoinDisplay();
+        }
+    }
+
+    // Update Coin Balance
+    function updateCoinDisplay() {
+        if (!loggedInUser) return;
+        
+        // Fetch saved balance for logged-in user
+        const savedBalance = localStorage.getItem("SF_BAL_USER_" + loggedInUser) || "0";
+        document.getElementById("userCoinBalance").innerText = savedBalance + " SF";
+        
+        if(userAddress) {
+            document.getElementById("userWalletAddr").innerText = "Wallet: " + userAddress.substring(0,6) + "..." + userAddress.substring(userAddress.length - 4);
+        } else {
+            document.getElementById("userWalletAddr").innerText = "Wallet Not Connected";
+        }
+    }
+
+    // Step 2: Connect Web3 Wallet
     async function connectWallet() {
         const statusEl = document.getElementById("status");
-        statusEl.innerText = "Connecting...";
+        statusEl.innerText = "Connecting wallet...";
 
         try {
             if (window.ethereum) {
                 provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-                await provider.send("eth_requestAccounts", []);
+                const accounts = await provider.send("eth_requestAccounts", []);
                 
-                // Switch/Add BSC Network (ChainId: 56 / 0x38)
                 try {
                     await window.ethereum.request({
                         method: 'wallet_switchEthereumChain',
@@ -217,25 +324,28 @@ header{
                 }
 
                 signer = provider.getSigner();
-                userAddress = await signer.getAddress();
+                userAddress = accounts[0];
 
-                statusEl.innerText = "Connected: " + userAddress.substring(0,6) + "..." + userAddress.substring(userAddress.length - 4);
+                statusEl.innerText = "Wallet Connected!";
                 document.getElementById("connectBtn").innerText = "✓ Connected";
+                
+                updateCoinDisplay();
             } else {
-                alert("Please open this page inside Trust Wallet Browser or MetaMask DApp Browser!");
-                statusEl.innerText = "❌ No Web3 Wallet Detected";
+                alert("Please open this website inside Trust Wallet Browser or MetaMask Browser!");
+                statusEl.innerText = "❌ Open inside Trust Wallet / MetaMask DApp Browser";
             }
         } catch (error) {
             console.error(error);
-            statusEl.innerText = "❌ Connection failed/rejected.";
+            statusEl.innerText = "❌ Connection failed or rejected.";
         }
     }
 
+    // Step 3: Pay 2.30 USDT and Add 100 SF Coins
     async function payUSDT() {
         const statusEl = document.getElementById("status");
 
         if (!userAddress || !signer) {
-            alert("Pehle 'Connect Wallet' button dabayein!");
+            alert("Pehle '1. Connect Wallet' button par click karein!");
             return;
         }
 
@@ -245,22 +355,28 @@ header{
             const abi = ["function transfer(address to, uint256 value) returns (bool)"];
             const usdtContract = new ethers.Contract(USDT_BSC_CONTRACT, abi, signer);
 
-            // 2.30 USDT with 18 decimals
             const amount = ethers.utils.parseUnits("2.30", 18);
 
             const tx = await usdtContract.transfer(RECEIVER_WALLET, amount);
-            statusEl.innerText = "Processing... Tx Hash: " + tx.hash.substring(0, 12) + "...";
+            statusEl.innerText = "Transaction pending... Hash: " + tx.hash.substring(0, 10) + "...";
 
             await tx.wait();
-            statusEl.innerText = "✅ Transaction Successful! 100 SF Coins locked for 12 months.";
-            alert("Payment Received! 100 SF Coins allocated.");
+
+            // Add 100 SF Coins to logged-in user
+            let currentBalance = parseInt(localStorage.getItem("SF_BAL_USER_" + loggedInUser) || "0");
+            currentBalance += 100;
+            localStorage.setItem("SF_BAL_USER_" + loggedInUser, currentBalance);
+
+            updateCoinDisplay();
+
+            statusEl.innerText = "✅ Success! 100 SF Coins added to your account.";
+            alert("Payment Received! 100 SF Coins added to your account.");
         } catch (error) {
             console.error(error);
-            statusEl.innerText = "❌ Transaction Failed or Cancelled.";
+            statusEl.innerText = "❌ Transaction Failed / Cancelled.";
         }
     }
 </script>
 
 </body>
 </html>
-
