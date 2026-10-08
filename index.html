@@ -28,7 +28,7 @@ header{position:sticky;top:0;z-index:20;background:rgba(4,11,20,.82);backdrop-fi
 .authbox h1{margin-top:4px;font-size:24px}
 .sub{color:#8498ad;font-size:12px;margin:5px 0 22px}
 .tabs{display:flex;background:#07111e;padding:4px;border-radius:13px;margin-bottom:18px}
-.tab{flex:1;padding:11px;border-radius:10px;background:transparent;color:#8da0b5}
+.tab{flex:1;padding:11px;border-radius:10px;background:transparent;color:#8da0b5;cursor:pointer}
 .tab.active{background:#152b45;color:white}
 .field{margin-bottom:12px;text-align:left}
 .field label{display:block;color:#a9bad0;font-size:12px;margin:0 0 6px 3px}
@@ -105,26 +105,26 @@ footer{text-align:center;color:#53677d;font-size:10px;padding:28px 10px 90px}
   <h1>SFC Coin</h1>
   <div class="sub">Secure Future Coin</div>
   <div class="tabs">
-    <button id="lt" class="tab active" onclick="showLogin()">Login</button>
-    <button id="rt" class="tab" onclick="showRegister()">Register</button>
+    <button id="lt" type="button" class="tab active">Login</button>
+    <button id="rt" type="button" class="tab">Register</button>
   </div>
   <div id="loginForm">
     <div class="field"><label>Email</label><input id="loginEmail" type="email" placeholder="you@example.com"></div>
     <div class="field"><label>Password</label><input id="loginPassword" type="password" placeholder="Password"></div>
-    <button class="primary" onclick="login()">Login to SFC</button>
+    <button id="btnLogin" class="primary" type="button">Login to SFC</button>
   </div>
   <div id="registerForm" class="hidden">
     <div class="field"><label>Name</label><input id="registerName" placeholder="Your name"></div>
     <div class="field"><label>Email</label><input id="registerEmail" type="email" placeholder="you@example.com"></div>
     <div class="field"><label>Password</label><input id="registerPassword" type="password" placeholder="Minimum 6 characters"></div>
-    <button class="primary" onclick="register()">Create Account</button>
+    <button id="btnRegister" class="primary" type="button">Create Account</button>
   </div>
   <div class="note">Real account data is stored in Supabase. USDT payments are verified on TRON before crediting SFC in the database. Withdrawal is disabled.</div>
 </div>
 </section>
 
 <section id="app" class="hidden">
-<header><div class="container head"><div class="brand"><div class="mini">SFC</div><div><strong>SFC Coin</strong><span>Secure Future Coin</span></div></div><button class="icon" onclick="logout()">↪</button></div></header>
+<header><div class="container head"><div class="brand"><div class="mini">SFC</div><div><strong>SFC Coin</strong><span>Secure Future Coin</span></div></div><button class="icon" id="btnLogoutHeader" type="button">↪</button></div></header>
 <main class="container">
 <section class="hero"><div class="heroCard"><span class="badge">● REAL PAYMENT VERIFICATION</span><h2>Welcome to <span class="grad">SFC Coin</span></h2><p>Buy SFC using USDT on the TRON (TRC20) network. Send USDT to the receiving address below, then submit your TRON transaction hash for automatic on-chain verification.</p><div class="actions"><button class="buy" onclick="document.getElementById('paymentCard').scrollIntoView({behavior:'smooth'})">🚀 Pay with USDT</button><button class="secondary" onclick="connectTelegram()">✈️ Telegram</button></div></div></section>
 <section class="stats"><div class="stat"><small>SFC PRICE</small><strong id="price">$0.125</strong></div><div class="stat"><small>PAYMENT</small><strong class="green">USDT</strong></div><div class="stat"><small>NETWORK</small><strong>TRC20</strong></div><div class="stat"><small>WITHDRAWAL</small><strong>OFF</strong></div></section>
@@ -133,11 +133,11 @@ footer{text-align:center;color:#53677d;font-size:10px;padding:28px 10px 90px}
 <div class="card" id="paymentCard"><div class="title"><strong>💵 Buy SFC with USDT</strong><span>TRON</span></div><div class="price">$0.125 <small>/ SFC</small></div><div class="amountWrap"><label>USDT amount</label><input id="usdt" class="amount" type="number" min="1" step="0.000001" value="10" oninput="calc()"><div class="output">You receive <b id="sfcOut">80 SFC</b></div><button class="buy" onclick="createOrder()">Create USDT Payment</button></div></div>
 </section>
 <section class="card payment hidden" id="paymentBox"><div class="title"><strong>🔐 Send USDT (TRC20)</strong><span id="orderStatus">Waiting</span></div><div class="qr" id="qr"></div><small>Network: <b>TRON / TRC20</b><br>Token: <b>USDT</b><br>Send exactly the order amount to this address.</small><div class="address" id="payAddress">TU2LrKVf8odSVQ9NUwZkStheaF6nibY79W</div><div class="payrow"><button class="secondary" style="flex:1" onclick="copyAddress()">Copy address</button><button class="secondary" style="flex:1" onclick="copyAmount()">Copy amount</button></div><div style="margin-top:15px;color:#8fa4b8;font-size:11px">After sending, paste the TRON transaction hash:</div><div class="payrow"><input id="txHash" placeholder="64-character TRON tx hash"><button class="verify" onclick="verifyPayment()">Verify</button></div><div id="verifyStatus" class="status"></div></section>
-<section class="grid"><div class="card"><div class="title"><strong>💰 My SFC Balance</strong><span id="walletStatus">Account</span></div><div class="wallet"><div class="walletIcon">🪙</div><div><small>SFC BALANCE</small><strong id="balance">0 SFC</strong></div></div><button class="connect" onclick="connectTelegram()">✈️ Connect Telegram</button></div><div class="card"><div class="title"><strong>👤 Profile</strong><span>Account</span></div><div style="color:#8296aa;font-size:10px">Logged in as</div><div id="profileName" style="font-size:20px;font-weight:800;margin-top:5px">User</div><div id="profileEmail" style="color:#72869c;font-size:11px;margin-top:4px">—</div><button class="connect" onclick="logout()">Logout</button></div></section>
+<section class="grid"><div class="card"><div class="title"><strong>💰 My SFC Balance</strong><span id="walletStatus">Account</span></div><div class="wallet"><div class="walletIcon">🪙</div><div><small>SFC BALANCE</small><strong id="balance">0 SFC</strong></div></div><button class="connect" onclick="connectTelegram()">✈️ Connect Telegram</button></div><div class="card"><div class="title"><strong>👤 Profile</strong><span>Account</span></div><div style="color:#8296aa;font-size:10px">Logged in as</div><div id="profileName" style="font-size:20px;font-weight:800;margin-top:5px">User</div><div id="profileEmail" style="color:#72869c;font-size:11px;margin-top:4px">—</div><button class="connect" id="btnLogoutProfile" type="button">Logout</button></div></section>
 <section class="card"><div class="title"><strong>🧾 My Payments</strong><span>USDT deposits</span></div><div style="overflow:auto"><table class="orders"><thead><tr><th>Amount</th><th>SFC</th><th>Status</th><th>TX</th></tr></thead><tbody id="orders"></tbody></table></div></section>
 <section class="features"><div class="feature">🔐<b>On-chain verification</b><p>Backend checks the TRON transaction, recipient, USDT contract and amount.</p></div><div class="feature">⚡<b>Supabase backend</b><p>Auth, payment orders and balances are stored server-side with RLS.</p></div><div class="feature">🚫<b>No withdrawal</b><p>There is no withdrawal function or private wallet key in this project.</p></div></section>
 <footer>©️ 2026 SFC Coin — Payment-enabled interface. USDT receiving is real; SFC crediting is an internal database balance, not an on-chain token transfer.</footer>
-</main><nav class="bottom"><button class="active" onclick="scrollTop()"><b>⌂</b>Home</button><button onclick="document.getElementById('paymentCard').scrollIntoView({behavior:'smooth'})"><b>💵</b>Pay</button><button onclick="document.getElementById('orders').scrollIntoView({behavior:'smooth'})"><b>🧾</b>Orders</button><button onclick="logout()"><b>↪</b>Logout</button></nav></section>
+</main><nav class="bottom"><button class="active" onclick="scrollTop()"><b>⌂</b>Home</button><button onclick="document.getElementById('paymentCard').scrollIntoView({behavior:'smooth'})"><b>💵</b>Pay</button><button onclick="document.getElementById('orders').scrollIntoView({behavior:'smooth'})"><b>🧾</b>Orders</button><button id="btnLogoutNav" type="button"><b>↪</b>Logout</button></nav></section>
 <div id="modal" class="modal hidden"><div class="modalbox"><div id="mi" style="font-size:34px">✓</div><h2 id="mt">Success</h2><p id="mx">Done</p><button class="close" onclick="closeModal()">Continue</button></div></div><div id="toast" class="toast">Done</div>
 
 <script>
@@ -145,17 +145,39 @@ const SUPABASE_URL='https://ttmwxvnsivvhcqxorchf.supabase.co';
 const SUPABASE_ANON_KEY='sb_publishable_DavnXZmDB7JHpQVyEf7iig_8uySOEcR';
 const RECEIVING_ADDRESS='TU2LrKVf8odSVQ9NUwZkStheaF6nibY79W';
 const PRICE=.125;
-const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+
+let sb = null;
 let currentUser=null,currentOrder=null;
 
 function $(id){return document.getElementById(id)}
 function toast(x){$('toast').textContent=x;$('toast').classList.add('show');clearTimeout(window.tt);window.tt=setTimeout(()=>$('toast').classList.remove('show'),2600)}
 function modal(i,t,x){$('mi').textContent=i;$('mt').textContent=t;$('mx').textContent=x;$('modal').classList.remove('hidden')}
 function closeModal(){$('modal').classList.add('hidden')}
-function showLogin(){$('loginForm').classList.remove('hidden');$('registerForm').classList.add('hidden');$('lt').classList.add('active');$('rt').classList.remove('active')}
-function showRegister(){$('loginForm').classList.add('hidden');$('registerForm').classList.remove('hidden');$('lt').classList.remove('active');$('rt').classList.add('active')}
+
+function showLogin(){
+  $('loginForm').classList.remove('hidden');$('registerForm').classList.add('hidden');
+  $('lt').classList.add('active');$('rt').classList.remove('active');
+}
+
+function showRegister(){
+  $('loginForm').classList.add('hidden');$('registerForm').classList.remove('hidden');
+  $('lt').classList.remove('active');$('rt').classList.add('active');
+}
+
+// Bind events directly after DOM loads
+document.addEventListener('DOMContentLoaded', () => {
+  if (typeof supabase !== 'undefined') {
+    sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+
+  $('lt').addEventListener('click', showLogin);
+  $('rt').addEventListener('click', showRegister);$('btnLogin').addEventListener('click', login);
+  $('btnRegister').addEventListener('click', register);$('btnLogoutHeader').addEventListener('click', logout);
+  $('btnLogoutProfile').addEventListener('click', logout);$('btnLogoutNav').addEventListener('click', logout);
+});
 
 async function register(){
+  if (!sb) return toast('Supabase loading error. Refresh page.');
   const name=$('registerName').value.trim();
   const email=$('registerEmail').value.trim().toLowerCase();
   const password=$('registerPassword').value;
@@ -192,6 +214,7 @@ async function register(){
 }
 
 async function login(){
+  if (!sb) return toast('Supabase loading error. Refresh page.');
   const email=$('loginEmail').value.trim();
   const password=$('loginPassword').value;
   if(!email || !password) return toast('Enter email and password');
@@ -204,7 +227,7 @@ async function login(){
 }
 
 async function logout(){
-  await sb.auth.signOut();
+  if (sb) await sb.auth.signOut();
   currentUser=null;
   $('app').classList.add('hidden');$('auth').classList.remove('hidden');
   showLogin();
@@ -217,7 +240,7 @@ async function openApp(){
 }
 
 async function refreshUser(){
-  if(!currentUser) return;
+  if(!currentUser || !sb) return;
   let {data,error}=await sb.from('profiles').select('name,balance_sfc').eq('id',currentUser.id).maybeSingle();
   if(error || !data){
     $('profileName').textContent=currentUser.user_metadata?.name||'User';
@@ -233,7 +256,7 @@ function calc(){
 }
 
 async function createOrder(){
-  if(!currentUser) return toast('Login first');
+  if(!currentUser || !sb) return toast('Login first');
   const amount=Number($('usdt').value||0);
   if(amount<=0) return toast('Enter USDT amount');
   const {data,error}=await sb.functions.invoke('create-order',{body:{amount_usdt:amount}});
@@ -252,7 +275,7 @@ function renderPayment(o){
 }
 
 async function verifyPayment(){
-  if(!currentOrder) return toast('Create a payment order first');
+  if(!currentOrder || !sb) return toast('Create a payment order first');
   const tx=$('txHash').value.trim();
   if(!/^[a-fA-F0-9]{64}$/.test(tx)) return toast('Enter a valid 64-character TRON transaction hash');$('verifyStatus').textContent='Checking TRON…';
   const {data,error}=await sb.functions.invoke('verify-payment',{body:{order_id:currentOrder.id,tx_hash:tx}});
@@ -267,7 +290,7 @@ async function verifyPayment(){
 }
 
 async function loadOrders(){
-  if(!currentUser) return;
+  if(!currentUser || !sb) return;
   const {data,error}=await sb.from('payment_orders').select('id,amount_usdt,sfc_amount,status,tx_hash,created_at').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(20);
   if(error) return;
   const rows=data||[];
@@ -292,14 +315,6 @@ function connectTelegram(){
 
 function scrollTop(){
   window.scrollTo({top:0,behavior:'smooth'});
-}
-
-async function resetPassword(){
-  const email=prompt('Enter your registered email');
-  if(!email) return;
-  const {error}=await sb.auth.resetPasswordForEmail(email);
-  if(error) toast(error.message);
-  else toast('Password reset link sent to your email');
 }
 </script>
 </body>
