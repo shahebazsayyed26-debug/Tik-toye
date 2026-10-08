@@ -28,7 +28,7 @@ header{position:sticky;top:0;z-index:20;background:rgba(4,11,20,.82);backdrop-fi
 .authbox h1{margin-top:4px;font-size:24px}
 .sub{color:#8498ad;font-size:12px;margin:5px 0 22px}
 .tabs{display:flex;background:#07111e;padding:4px;border-radius:13px;margin-bottom:18px}
-.tab{flex:1;padding:11px;border-radius:10px;background:transparent;color:#8da0b5;cursor:pointer}
+.tab{flex:1;padding:11px;border-radius:10px;background:transparent;color:#8da0b5;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .tab.active{background:#152b45;color:white}
 .field{margin-bottom:12px;text-align:left}
 .field label{display:block;color:#a9bad0;font-size:12px;margin:0 0 6px 3px}
@@ -155,29 +155,43 @@ function modal(i,t,x){$('mi').textContent=i;$('mt').textContent=t;$('mx').textCo
 function closeModal(){$('modal').classList.add('hidden')}
 
 function showLogin(){
-  $('loginForm').classList.remove('hidden');$('registerForm').classList.add('hidden');
+  $('loginForm').style.display = 'block';$('registerForm').style.display = 'none';
   $('lt').classList.add('active');$('rt').classList.remove('active');
 }
 
 function showRegister(){
-  $('loginForm').classList.add('hidden');$('registerForm').classList.remove('hidden');
-  $('lt').classList.remove('active');$('rt').classList.add('active');
+  $('loginForm').style.display = 'none';
+  $('registerForm').style.display = 'block';$('registerForm').classList.remove('hidden');
+  $('rt').classList.add('active');$('lt').classList.remove('active');
 }
 
-// Bind events directly after DOM loads
-document.addEventListener('DOMContentLoaded', () => {
-  if (typeof supabase !== 'undefined') {
-    sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  }
+// Immediate listener setup without relying on external scripts
+window.addEventListener('DOMContentLoaded', () => {
+  $('lt').onclick = showLogin;
+  $('rt').onclick = showRegister;
+  
+  $('btnLogin').onclick = login;
+  $('btnRegister').onclick = register;
+  $('btnLogoutHeader').onclick = logout;
+  $('btnLogoutProfile').onclick = logout;
+  $('btnLogoutNav').onclick = logout;
 
-  $('lt').addEventListener('click', showLogin);
-  $('rt').addEventListener('click', showRegister);$('btnLogin').addEventListener('click', login);
-  $('btnRegister').addEventListener('click', register);$('btnLogoutHeader').addEventListener('click', logout);
-  $('btnLogoutProfile').addEventListener('click', logout);$('btnLogoutNav').addEventListener('click', logout);
+  // Initialize Supabase safely
+  try {
+    if (window.supabase) {
+      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+  } catch(e) {
+    console.error('Supabase Init Error:', e);
+  }
 });
 
 async function register(){
-  if (!sb) return toast('Supabase loading error. Refresh page.');
+  if (!sb && window.supabase) {
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+  if (!sb) return toast('Database connection error. Try again.');
+
   const name=$('registerName').value.trim();
   const email=$('registerEmail').value.trim().toLowerCase();
   const password=$('registerPassword').value;
@@ -187,43 +201,55 @@ async function register(){
   
   toast('Creating account...');
   
-  const {data, error} = await sb.auth.signUp({
-    email,
-    password,
-    options: {
-      data: { name: name }
+  try {
+    const {data, error} = await sb.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { name: name }
+      }
+    });
+
+    if(error) {
+      return toast(error.message);
     }
-  });
 
-  if(error) {
-    return toast(error.message);
-  }
-
-  if(data && data.user) {
-    currentUser = data.user;
-    if(data.session) {
-      await openApp();
-      toast('Account created successfully!');
+    if(data && data.user) {
+      currentUser = data.user;
+      if(data.session) {
+        await openApp();
+        toast('Account created successfully!');
+      } else {
+        toast('Account created! Please check your email.');
+        showLogin();
+      }
     } else {
-      toast('Account created! Please check your email to verify.');
-      showLogin();
+      toast('Registration failed. Please try again.');
     }
-  } else {
-    toast('Registration failed. Please try again.');
+  } catch(err) {
+    toast('Network Error: ' + err.message);
   }
 }
 
 async function login(){
-  if (!sb) return toast('Supabase loading error. Refresh page.');
+  if (!sb && window.supabase) {
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+  if (!sb) return toast('Database connection error.');
+
   const email=$('loginEmail').value.trim();
   const password=$('loginPassword').value;
   if(!email || !password) return toast('Enter email and password');
   
-  const {data,error}=await sb.auth.signInWithPassword({email,password});
-  if(error) return toast(error.message);
-  
-  currentUser=data.user;
-  openApp();
+  try {
+    const {data,error}=await sb.auth.signInWithPassword({email,password});
+    if(error) return toast(error.message);
+    
+    currentUser=data.user;
+    openApp();
+  } catch(err) {
+    toast('Login Error: ' + err.message);
+  }
 }
 
 async function logout(){
