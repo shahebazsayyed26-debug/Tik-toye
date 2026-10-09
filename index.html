@@ -85,6 +85,11 @@ footer{text-align:center;color:#53677d;font-size:10px;padding:28px 10px 90px}
 .close{width:100%;padding:12px;border-radius:11px;background:#14283e;color:white}
 .toast{position:fixed;top:80px;left:50%;transform:translate(-50%,-20px);opacity:0;z-index:200;background:#102239;border:1px solid #4da3ff33;color:white;padding:11px 14px;border-radius:11px;font-size:11px;transition:.25s}
 .toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* Styling for injected form elements */
+#wrapper h1{font-size:16px;margin-bottom:12px;color:#f7fbff}
+#error{margin-top:10px;font-size:12px;color:#ff5252;font-weight:600}
+
 @media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.features{grid-template-columns:1fr}.actions{flex-direction:column}.actions>*{width:100%}}
 @media(min-width:761px){.container{padding-left:22px;padding-right:22px}}
 </style>
@@ -164,11 +169,32 @@ footer{text-align:center;color:#53677d;font-size:10px;padding:28px 10px 90px}
   </div>
   <button class="connect" onclick="connectTelegram()">✈️ Connect Telegram</button>
 </div>
+
+<!-- Integrated Validation Form Card -->
 <div class="card">
-  <div class="title"><strong>👤 Profile</strong><span>User</span></div>
-  <div style="color:#8296aa;font-size:10px">Status</div>
-  <div id="profileName" style="font-size:20px;font-weight:800;margin-top:5px">Active User</div>
-  <div id="profileEmail" style="color:#72869c;font-size:11px;margin-top:4px">Public Wallet Access</div>
+  <div id="wrapper">
+    <h1>Enter your information:</h1>
+    <form id="validationForm">
+      <div class="field">
+        <label for="email">email:</label>
+        <input id="email" name="email" type="email" placeholder="example@mail.com" />
+      </div>
+      <div class="field">
+        <label for="mobile">mobile:</label>
+        <input id="mobile" name="mobile" type="tel" placeholder="+1234567890" />
+      </div>
+      <div class="field">
+        <label for="password">password:</label>
+        <input id="password" name="password" type="password" />
+      </div>
+      <div class="field">
+        <label for="confirmPassword">confirm password:</label>
+        <input id="confirmPassword" name="confirmPassword" type="password" />
+      </div>
+      <input id="submit" class="primary" type="submit" value="Submit" style="margin-top: 6px;" />
+    </form>
+    <div id="error"></div>
+  </div>
 </div>
 </section>
 
@@ -275,6 +301,28 @@ function connectTelegram(){
 function scrollTop(){
   window.scrollTo({top:0,behavior:'smooth'});
 }
+
+// Basic Form Validation Event
+document.getElementById('validationForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const email = $('email').value.trim();
+  const mobile = $('mobile').value.trim();
+  const password = $('password').value;
+  const confirmPassword = $('confirmPassword').value;
+  const errorDiv = $('error');
+
+  if(!email || !mobile || !password) {
+    errorDiv.textContent = 'All fields are required.';
+    return;
+  }
+  if(password !== confirmPassword) {
+    errorDiv.textContent = 'Passwords do not match!';
+    return;
+  }
+
+  errorDiv.textContent = '';
+  modal('✓', 'Information Saved', 'Your user details have been updated.');
+});
 </script>
 </body>
 </html>
