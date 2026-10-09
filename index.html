@@ -4,10 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI Background Remover - Free & Fast</title>
-  <!-- Tailwind CSS CDN -->
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Fixed & Stable imgly Background Removal SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/dist/index.js"></script>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between font-sans">
 
@@ -41,8 +39,8 @@
       <!-- Loading State -->
       <div id="loading-ui" class="hidden flex-col items-center py-4">
         <div class="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-3"></div>
-        <p class="text-sm font-medium text-indigo-400" id="status-text">Removing Background with AI...</p>
-        <p class="text-xs text-slate-500 mt-1">Pehli baar AI model load hone me 5-10 sec lag sakte hain.</p>
+        <p class="text-sm font-medium text-indigo-400" id="status-text">AI Model download ho raha hai...</p>
+        <p class="text-xs text-slate-500 mt-1">Pehli baar thoda time lag sakta hai.</p>
       </div>
     </div>
 
@@ -75,7 +73,10 @@
     Open Source AI Background Remover Project
   </footer>
 
-  <script>
+  <!-- ES Module: Seedhe JS ke andar Module Import kiya gaya hai -->
+  <script type="module">
+    import removeBackground from 'https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/+esm';
+
     const dropZone = document.getElementById('drop-zone');
     const imageInput = document.getElementById('image-input');
     const uploadUi = document.getElementById('upload-ui');
@@ -98,21 +99,22 @@
       uploadUi.classList.add('hidden');
       loadingUi.classList.remove('hidden');
       loadingUi.classList.add('flex');
-      statusText.innerText = "Removing Background with AI...";
+      statusText.innerText = "Background remove ho raha hai...";
 
       originalPreview.src = URL.createObjectURL(file);
 
       try {
-        // Safe function accessor for window.imglyRemoveBackground or imgly.removeBackground
-        const removeFn = window.imglyRemoveBackground || (window.imgly && window.imgly.removeBackground);
-        
-        if (!removeFn) {
-          throw new Error("AI Library abhi tak fully load nahi hui, kripya 2 second baad dobara try karein.");
-        }
+        // Direct module function execution
+        const blob = await removeBackground(file, {
+          progress: (key, current, total) => {
+            if (total > 0) {
+              const percent = Math.round((current / total) * 100);
+              statusText.innerText = `Processing AI: ${percent}%`;
+            }
+          }
+        });
 
-        const blob = await removeFn(file);
         const url = URL.createObjectURL(blob);
-        
         outputPreview.src = url;
         downloadBtn.href = url;
         downloadBtn.download = `no-bg-${file.name.split('.')[0]}.png`;
@@ -121,8 +123,8 @@
         loadingUi.classList.remove('flex');
         resultContainer.classList.remove('hidden');
       } catch (error) {
-        console.error("BG Removal Error Details:", error);
-        alert('Error: ' + (error.message || 'Image process nahi ho paayi.'));
+        console.error("AI Error:", error);
+        alert('Error: Image process nahi ho saki. Choti photo try karein.');
         resetUI();
       }
     }
