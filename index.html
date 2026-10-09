@@ -1,402 +1,149 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#07111f">
-<title>SFC Coin — Secure Future Coin</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:radial-gradient(circle at 15% 10%,rgba(32,224,255,.12),transparent 28%),radial-gradient(circle at 90% 15%,rgba(77,163,255,.12),transparent 30%),linear-gradient(145deg,#030711,#071321 55%,#030811);color:#f7fbff;min-height:100vh}
-button,input{font:inherit}
-button{cursor:pointer;border:0}
-.hidden{display:none!important}
-.container{width:min(1100px,100%);margin:auto;padding:0 16px}
-header{position:sticky;top:0;z-index:20;background:rgba(4,11,20,.82);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.07)}
-.head{height:68px;display:flex;align-items:center;justify-content:space-between}
-.brand{display:flex;gap:10px;align-items:center}
-.logo,.mini{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;color:#03111d;background:linear-gradient(145deg,#fff,#3edcff 35%,#2879ff);box-shadow:0 0 22px rgba(32,224,255,.4)}
-.logo{width:64px;height:64px;font-size:20px;margin:0 auto 10px}
-.mini{width:40px;height:40px;font-size:12px}
-.brand strong{font-size:16px}
-.brand span{display:block;color:#8195aa;font-size:10px}
-.field{margin-bottom:12px;text-align:left}
-.field label{display:block;color:#a9bad0;font-size:12px;margin:0 0 6px 3px}
-.field input,.amount{width:100%;padding:13px;color:white;background:#081522;border:1px solid rgba(255,255,255,.09);border-radius:12px;outline:0}
-.field input:focus{border-color:#20e0ff88}
-.primary,.buy{width:100%;padding:14px;border-radius:13px;background:linear-gradient(100deg,#20e0ff,#4d8cff);color:#03111d;font-weight:900}
-.hero{padding:26px 0 14px}
-.heroCard,.card{background:rgba(13,25,43,.8);border:1px solid rgba(255,255,255,.09);border-radius:20px}
-.heroCard{padding:25px;background:linear-gradient(135deg,rgba(20,54,82,.78),rgba(8,18,31,.94))}
-.badge{display:inline-block;padding:6px 9px;border-radius:18px;color:#69efb5;background:#35e29a18;border:1px solid #35e29a33;font-size:10px;font-weight:800}
-.hero h2{font-size:clamp(30px,7vw,48px);margin-top:13px}
-.grad{background:linear-gradient(90deg,#fff,#55e8ff,#4d8cff);-webkit-background-clip:text;color:transparent}
-.hero p{max-width:700px;color:#98aabe;line-height:1.6;font-size:13px;margin-top:10px}
-.actions{display:flex;gap:10px;margin-top:18px}
-.secondary{padding:13px 17px;border-radius:12px;background:#122238;color:white;border:1px solid rgba(255,255,255,.08);font-weight:800}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:0 0 14px}
-.stat{padding:15px;background:rgba(13,25,43,.78);border:1px solid rgba(255,255,255,.08);border-radius:16px}
-.stat small{font-size:9px;color:#71869c}
-.stat strong{display:block;margin-top:5px;font-size:18px}
-.green{color:#35e29a}
-.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:14px;margin-bottom:14px}
-.card{padding:18px}
-.title{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
-.title strong{font-size:14px}
-.title span{font-size:10px;color:#71869c}
-.chart{height:220px;border-radius:14px;overflow:hidden;background:linear-gradient(#ffffff0b 1px,transparent 1px),linear-gradient(90deg,#ffffff0b 1px,transparent 1px);background-size:100% 25%,20% 100%}
-canvas{width:100%;height:100%}
-.price{font-size:29px;font-weight:900}
-.price small{font-size:11px;color:#71869c;font-weight:500}
-.amountWrap{margin-top:16px}
-.amountWrap label{font-size:10px;color:#8da0b5}
-.amount{margin-top:6px}
-.output{font-size:12px;color:#94a9bf;margin:10px 0}
-.wallet{display:flex;align-items:center;gap:11px;margin:14px 0}
-.walletIcon{width:45px;height:45px;border-radius:13px;background:#10273d;display:flex;align-items:center;justify-content:center;font-size:20px}
-.wallet small{display:block;color:#71869c;font-size:9px}
-.wallet strong{display:block;margin-top:3px;font-size:19px}
-.connect{width:100%;padding:12px;border-radius:12px;background:#102238;color:white;border:1px solid rgba(255,255,255,.08);font-weight:700;margin-top:8px}
-.payment{border:1px solid rgba(32,224,255,.2);background:linear-gradient(135deg,#0c2337,#091827)}
-.address{word-break:break-all;padding:11px;background:#07121f;border-radius:11px;border:1px solid rgba(255,255,255,.07);font-family:monospace;font-size:11px;color:#6ee8ff}
-.qr{width:150px;height:150px;background:white;padding:8px;border-radius:10px;margin:12px auto}
-.payment small{color:#8095aa;font-size:10px;line-height:1.5}
-.payrow{display:flex;gap:8px;margin-top:10px}
-.payrow input{flex:1;min-width:0;padding:12px;border-radius:11px;background:#07121f;border:1px solid rgba(255,255,255,.08);color:white}
-.verify{padding:12px 14px;border-radius:11px;background:#20e0ff;color:#03111d;font-weight:900}
-.status{margin-top:10px;font-size:11px;color:#8fa4b8}
-.orders{width:100%;border-collapse:collapse;font-size:11px}
-.orders th,.orders td{text-align:left;padding:9px;border-bottom:1px solid rgba(255,255,255,.06)}
-.orders th{color:#71869c}
-.features{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.feature{padding:17px;background:rgba(13,25,43,.78);border:1px solid rgba(255,255,255,.08);border-radius:17px}
-.feature b{display:block;margin-top:8px;font-size:13px}
-.feature p{font-size:10px;color:#71869c;line-height:1.5;margin-top:5px}
-footer{text-align:center;color:#53677d;font-size:10px;padding:28px 10px 90px}
-.bottom{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);width:min(500px,calc(100% - 22px));display:flex;z-index:30;padding:7px;border-radius:18px;background:#07111ef2;backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.09)}
-.bottom button{flex:1;background:transparent;color:#71869c;font-size:10px;padding:7px}
-.bottom button b{display:block;font-size:17px;margin-bottom:2px}
-.bottom button.active{color:#4de1ff}
-.modal{position:fixed;inset:0;z-index:100;background:#000b;display:flex;align-items:center;justify-content:center;padding:20px}
-.modalbox{width:min(390px,100%);background:#091726;border:1px solid rgba(255,255,255,.09);border-radius:23px;padding:24px;text-align:center}
-.modalbox p{color:#8498ad;font-size:12px;line-height:1.6;margin:9px 0 18px}
-.close{width:100%;padding:12px;border-radius:11px;background:#14283e;color:white}
-.toast{position:fixed;top:80px;left:50%;transform:translate(-50%,-20px);opacity:0;z-index:200;background:#102239;border:1px solid #4da3ff33;color:white;padding:11px 14px;border-radius:11px;font-size:11px;transition:.25s}
-.toast.show{opacity:1;transform:translate(-50%,0)}
-
-/* Auth / Login Page Specific Styles */
-.auth-page{min-height:80vh;display:flex;align-items:center;justify-content:center;padding:20px 0}
-.auth-card{width:min(420px,100%);padding:28px;background:rgba(13,25,43,.9);border:1px solid rgba(255,255,255,.1);border-radius:24px;box-shadow:0 15px 35px rgba(0,0,0,.5)}
-.auth-tabs{display:flex;background:#07121f;border-radius:12px;padding:4px;margin-bottom:20px;border:1px solid rgba(255,255,255,.05)}
-.auth-tab{flex:1;padding:10px;background:transparent;color:#8195aa;font-weight:700;font-size:13px;border-radius:9px;transition:.2s}
-.auth-tab.active{background:linear-gradient(100deg,#20e0ff,#4d8cff);color:#03111d}
-#error{margin-top:10px;font-size:12px;color:#ff5252;font-weight:600;text-align:center}
-
-@media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.features{grid-template-columns:1fr}.actions{flex-direction:column}.actions>*{width:100%}}
-@media(min-width:761px){.container{padding-left:22px;padding-right:22px}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Background Remover - Free & Fast</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- imgly Background Removal SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.3.0/dist/index.js"></script>
 </head>
-<body>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between font-sans">
 
-<!-- LOGIN / REGISTER SECTION (PAGE 1) -->
-<section id="authPage" class="container auth-page">
-  <div class="auth-card">
-    <div class="logo">SFC</div>
-    <div class="auth-tabs">
-      <button class="auth-tab active" id="loginTabBtn" onclick="toggleAuthTab('login')">Login</button>
-      <button class="auth-tab" id="registerTabBtn" onclick="toggleAuthTab('register')">Register</button>
+  <!-- Header -->
+  <header class="border-b border-slate-800 py-4 px-6 flex justify-between items-center">
+    <h1 class="text-xl font-bold text-indigo-400">BG Eraser<span class="text-slate-400 text-sm ml-2">AI Powered</span></h1>
+    <span class="bg-emerald-500/10 text-emerald-400 text-xs px-3 py-1 rounded-full font-medium">100% Free & Private</span>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-4xl mx-auto px-4 py-12 w-full text-center">
+    <h2 class="text-4xl font-extrabold mb-3">Remove Backgrounds in Seconds</h2>
+    <p class="text-slate-400 mb-8">Fast, automatic, and processed directly inside your browser. No server uploads!</p>
+
+    <!-- Upload Box -->
+    <div id="drop-zone" class="border-2 border-dashed border-slate-700 hover:border-indigo-500 bg-slate-800/50 rounded-2xl p-8 cursor-pointer transition-all max-w-lg mx-auto relative">
+      <!-- Direct Gallery Access Input -->
+      <input type="file" id="image-input" accept="image/*" class="hidden">
+      
+      <div id="upload-ui" class="flex flex-col items-center">
+        <svg class="w-12 h-12 text-indigo-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+        </svg>
+        <p class="text-lg font-medium">Gallery se photo choose karein ya Drag karein</p>
+        <p class="text-xs text-slate-500 mt-1 mb-4">PNG, JPG, WEBP (Max 10MB)</p>
+        
+        <button type="button" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-semibold transition shadow-md flex items-center gap-2">
+          📁 Choose From Gallery
+        </button>
+      </div>
+
+      <!-- Loading State -->
+      <div id="loading-ui" class="hidden flex-col items-center py-4">
+        <div class="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-3"></div>
+        <p class="text-sm font-medium text-indigo-400">Removing Background with AI...</p>
+        <p class="text-xs text-slate-500 mt-1">Pehli baar AI model load hone me 5-10 sec lagenge.</p>
+      </div>
     </div>
 
-    <!-- Login Form -->
-    <form id="loginForm">
-      <div class="field">
-        <label for="loginEmail">Email / Mobile:</label>
-        <input id="loginEmail" type="text" placeholder="Enter email or mobile" required />
+    <!-- Result Area -->
+    <div id="result-container" class="hidden mt-10 max-w-2xl mx-auto bg-slate-800 p-6 rounded-2xl border border-slate-700">
+      <h3 class="text-lg font-semibold mb-4 text-left">Result:</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+        <!-- Original Image -->
+        <div>
+          <p class="text-xs text-slate-400 mb-2">Original Image</p>
+          <img id="original-preview" class="w-full h-48 object-contain bg-slate-900 rounded-lg border border-slate-700" alt="Original">
+        </div>
+        <!-- Output Image with Grid Background -->
+        <div>
+          <p class="text-xs text-slate-400 mb-2">Background Removed</p>
+          <div class="w-full h-48 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:12px_12px] bg-slate-950 rounded-lg border border-slate-700 flex items-center justify-center overflow-hidden">
+            <img id="output-preview" class="w-full h-full object-contain" alt="No Background">
+          </div>
+        </div>
       </div>
-      <div class="field">
-        <label for="loginPassword">Password:</label>
-        <input id="loginPassword" type="password" placeholder="Enter password" required />
+
+      <!-- Buttons -->
+      <div class="mt-6 flex justify-end gap-3">
+        <button id="reset-btn" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-medium transition">Try Another Image</button>
+        <a id="download-btn" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium transition shadow-lg shadow-indigo-600/30 flex items-center gap-2">
+          Download PNG
+        </a>
       </div>
-      <button type="submit" class="primary" style="margin-top:10px">Login to Account</button>
-    </form>
-
-    <!-- Register Form (Entered Code Inserted Here) -->
-    <form id="validationForm" class="hidden">
-      <div id="wrapper">
-        <div class="field">
-          <label for="email">email:</label>
-          <input id="email" name="email" type="email" placeholder="Enter email" required />
-        </div>
-        <div class="field">
-          <label for="mobile">mobile:</label>
-          <input id="mobile" name="mobile" type="tel" placeholder="Enter mobile number" required />
-        </div>
-        <div class="field">
-          <label for="password">password:</label>
-          <input id="password" name="password" type="password" placeholder="Enter password" required />
-        </div>
-        <div class="field">
-          <label for="confirmPassword">confirm password:</label>
-          <input id="confirmPassword" name="confirmPassword" type="password" placeholder="Confirm password" required />
-        </div>
-        <input id="submit" class="primary" type="submit" value="Submit & Create Account" style="margin-top:6px" />
-      </div>
-    </form>
-
-    <div id="error"></div>
-  </div>
-</section>
-
-<!-- MAIN APP DASHBOARD (Hidden until Login) -->
-<section id="app" class="hidden">
-<header>
-  <div class="container head">
-    <div class="brand">
-      <div class="mini">SFC</div>
-      <div><strong>SFC Coin</strong><span>Secure Future Coin</span></div>
     </div>
-    <button class="secondary" style="padding:7px 12px;font-size:11px" onclick="logout()">Logout</button>
-  </div>
-</header>
+  </main>
 
-<main class="container">
-<section class="hero">
-  <div class="heroCard">
-    <span class="badge">● REAL PAYMENT VERIFICATION</span>
-    <h2>Welcome to <span class="grad">SFC Coin</span></h2>
-    <p>Buy SFC using USDT on the TRON (TRC20) network. Send USDT to the receiving address below, then submit your TRON transaction hash for automatic on-chain verification.</p>
-    <div class="actions">
-      <button class="buy" onclick="document.getElementById('paymentCard').scrollIntoView({behavior:'smooth'})">🚀 Pay with USDT</button>
-      <button class="secondary" onclick="connectTelegram()">✈️ Telegram</button>
-    </div>
-  </div>
-</section>
+  <!-- Footer -->
+  <footer class="py-4 text-center text-xs text-slate-600 border-t border-slate-800">
+    Open Source AI Background Remover Project
+  </footer>
 
-<section class="stats">
-  <div class="stat"><small>SFC PRICE</small><strong id="price">$0.125</strong></div>
-  <div class="stat"><small>PAYMENT</small><strong class="green">USDT</strong></div>
-  <div class="stat"><small>NETWORK</small><strong>TRC20</strong></div>
-  <div class="stat"><small>WITHDRAWAL</small><strong>OFF</strong></div>
-</section>
+  <!-- JavaScript Logic -->
+  <script>
+    const dropZone = document.getElementById('drop-zone');
+    const imageInput = document.getElementById('image-input');
+    const uploadUi = document.getElementById('upload-ui');
+    const loadingUi = document.getElementById('loading-ui');
+    const resultContainer = document.getElementById('result-container');
+    const originalPreview = document.getElementById('original-preview');
+    const outputPreview = document.getElementById('output-preview');
+    const downloadBtn = document.getElementById('download-btn');
+    const resetBtn = document.getElementById('reset-btn');
 
-<section class="grid">
-<div class="card">
-  <div class="title"><strong>📈 SFC Market Chart</strong><span>Demo display</span></div>
-  <div class="chart"><canvas id="chart"></canvas></div>
-</div>
-<div class="card" id="paymentCard">
-  <div class="title"><strong>💵 Buy SFC with USDT</strong><span>TRON</span></div>
-  <div class="price">$0.125 <small>/ SFC</small></div>
-  <div class="amountWrap">
-    <label>USDT amount</label>
-    <input id="usdt" class="amount" type="number" min="1" step="0.000001" value="10" oninput="calc()">
-    <div class="output">You receive <b id="sfcOut">80 SFC</b></div>
-    <button class="buy" onclick="createOrder()">Create USDT Payment</button>
-  </div>
-</div>
-</section>
+    // Trigger gallery picker on box click
+    dropZone.addEventListener('click', () => imageInput.click());
 
-<section class="card payment hidden" id="paymentBox">
-  <div class="title"><strong>🔐 Send USDT (TRC20)</strong><span id="orderStatus">Waiting</span></div>
-  <div class="qr" id="qr"></div>
-  <small>Network: <b>TRON / TRC20</b><br>Token: <b>USDT</b><br>Send exactly the order amount to this address.</small>
-  <div class="address" id="payAddress">TU2LrKVf8odSVQ9NUwZkStheaF6nibY79W</div>
-  <div class="payrow">
-    <button class="secondary" style="flex:1" onclick="copyAddress()">Copy address</button>
-    <button class="secondary" style="flex:1" onclick="copyAmount()">Copy amount</button>
-  </div>
-  <div style="margin-top:15px;color:#8fa4b8;font-size:11px">After sending, paste the TRON transaction hash:</div>
-  <div class="payrow">
-    <input id="txHash" placeholder="64-character TRON tx hash">
-    <button class="verify" onclick="verifyPayment()">Verify</button>
-  </div>
-  <div id="verifyStatus" class="status"></div>
-</section>
+    // File selection event
+    imageInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) processImage(file);
+    });
 
-<section class="grid">
-<div class="card">
-  <div class="title"><strong>💰 My SFC Balance</strong><span>Account</span></div>
-  <div class="wallet">
-    <div class="walletIcon">🪙</div>
-    <div><small>SFC BALANCE</small><strong id="balance">0 SFC</strong></div>
-  </div>
-  <button class="connect" onclick="connectTelegram()">✈️ Connect Telegram</button>
-</div>
-<div class="card">
-  <div class="title"><strong>👤 Profile</strong><span>User</span></div>
-  <div style="color:#8296aa;font-size:10px">Status</div>
-  <div id="profileName" style="font-size:18px;font-weight:800;margin-top:5px">User</div>
-  <div id="profileEmail" style="color:#72869c;font-size:11px;margin-top:4px">Logged In</div>
-</div>
-</section>
+    // Drag and Drop support
+    dropZone.addEventListener('dragover', (e) => e.preventDefault());
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) processImage(file);
+    });
 
-<section class="card">
-  <div class="title"><strong>🧾 My Payments</strong><span>USDT deposits</span></div>
-  <div style="overflow:auto">
-    <table class="orders">
-      <thead><tr><th>Amount</th><th>SFC</th><th>Status</th><th>TX</th></tr></thead>
-      <tbody id="orders"><tr><td colspan="4">No payment orders created yet</td></tr></tbody>
-    </table>
-  </div>
-</section>
+    // Main AI processing function
+    async function processImage(file) {
+      uploadUi.classList.add('hidden');
+      loadingUi.classList.remove('hidden');
+      loadingUi.classList.add('flex');
 
-<section class="features">
-  <div class="feature">🔐<b>On-chain verification</b><p>Backend checks the TRON transaction, recipient, USDT contract and amount.</p></div>
-  <div class="feature">⚡<b>Supabase backend</b><p>Payment orders and balances are synced server-side.</p></div>
-  <div class="feature">🚫<b>No withdrawal</b><p>There is no withdrawal function or private wallet key in this project.</p></div>
-</section>
+      originalPreview.src = URL.createObjectURL(file);
 
-<footer>©️ 2026 SFC Coin — Payment-enabled interface. USDT receiving is real; SFC crediting is an internal database balance.</footer>
-</main>
+      try {
+        const blob = await imglyRemoveBackground(file);
+        const url = URL.createObjectURL(blob);
+        
+        outputPreview.src = url;
+        downloadBtn.href = url;
+        downloadBtn.download = `no-bg-${file.name.split('.')[0]}.png`;
 
-<nav class="bottom">
-  <button class="active" onclick="scrollTop()"><b>⌂</b>Home</button>
-  <button onclick="document.getElementById('paymentCard').scrollIntoView({behavior:'smooth'})"><b>💵</b>Pay</button>
-  <button onclick="document.getElementById('orders').scrollIntoView({behavior:'smooth'})"><b>🧾</b>Orders</button>
-</nav>
-</section>
+        loadingUi.classList.add('hidden');
+        loadingUi.classList.remove('flex');
+        resultContainer.classList.remove('hidden');
+      } catch (error) {
+        alert('Processing me error aaya! Kripya doosri image try karein.');
+        console.error(error);
+        resetUI();
+      }
+    }
 
-<div id="modal" class="modal hidden"><div class="modalbox"><div id="mi" style="font-size:34px">✓</div><h2 id="mt">Success</h2><p id="mx">Done</p><button class="close" onclick="closeModal()">Continue</button></div></div>
-<div id="toast" class="toast">Done</div>
+    // Reset interface
+    resetBtn.addEventListener('click', resetUI);
 
-<script>
-const RECEIVING_ADDRESS='TU2LrKVf8odSVQ9NUwZkStheaF6nibY79W';
-const PRICE=.125;
-let currentOrder=null;
-
-function $(id){return document.getElementById(id)}
-function toast(x){$('toast').textContent=x;$('toast').classList.add('show');clearTimeout(window.tt);window.tt=setTimeout(()=>$('toast').classList.remove('show'),2600)}
-function modal(i,t,x){$('mi').textContent=i;$('mt').textContent=t;$('mx').textContent=x;$('modal').classList.remove('hidden')}
-function closeModal(){$('modal').classList.add('hidden')}
-
-/* Auth logic */
-function toggleAuthTab(type){
-  $('error').textContent='';
-  if(type==='login'){
-    $('loginTabBtn').classList.add('active');
-    $('registerTabBtn').classList.remove('active');
-    $('loginForm').classList.remove('hidden');
-    $('validationForm').classList.add('hidden');
-  }else{
-    $('registerTabBtn').classList.add('active');
-    $('loginTabBtn').classList.remove('active');
-    $('validationForm').classList.remove('hidden');
-    $('loginForm').classList.add('hidden');
-  }
-}
-
-function loginSuccess(userVal){
-  $('authPage').classList.add('hidden');
-  $('app').classList.remove('hidden');
-  $('profileName').textContent = userVal;
-  toast('Welcome back!');
-}
-
-function logout(){
-  $('app').classList.add('hidden');
-  $('authPage').classList.remove('hidden');
-  toast('Logged out');
-}
-
-// Login submit
-$('loginForm').addEventListener('submit', function(e){
-  e.preventDefault();
-  const input = $('loginEmail').value.trim();
-  if(!input){
-    $('error').textContent = 'Please enter details';
-    return;
-  }
-  loginSuccess(input);
-});
-
-// Register submit (User provided form validation)
-$('validationForm').addEventListener('submit', function(e){
-  e.preventDefault();
-  const email = $('email').value.trim();
-  const mobile = $('mobile').value.trim();
-  const password = $('password').value;
-  const confirmPassword = $('confirmPassword').value;
-
-  if(!email || !mobile || !password) {
-    $('error').textContent = 'All fields are required.';
-    return;
-  }
-  if(password !== confirmPassword) {
-    $('error').textContent = 'Passwords do not match!';
-    return;
-  }
-
-  $('error').textContent = '';
-  loginSuccess(email);
-});
-
-/* Crypto Dashboard Functions */
-function calc(){
-  const u=Number($('usdt').value||0);
-  $('sfcOut').textContent=(u/PRICE).toLocaleString('en-US',{maximumFractionDigits:6})+' SFC';
-}
-
-function createOrder(){
-  const amount=Number($('usdt').value||0);
-  if(amount<=0) return toast('Enter USDT amount');
-  
-  currentOrder = {
-    id: 'ORD' + Math.floor(Math.random()*1000000),
-    amount_usdt: amount,
-    sfc_amount: amount / PRICE,
-    receiving_address: RECEIVING_ADDRESS,
-    status: 'Waiting'
-  };
-  
-  renderPayment(currentOrder);
-  modal('💵','Payment Order Created','Send exactly '+amount.toFixed(6)+' USDT on TRON to the displayed address, then submit your transaction hash.');
-}
-
-function renderPayment(o){
-  $('paymentBox').classList.remove('hidden');
-  $('orderStatus').textContent=o.status;
-  $('payAddress').textContent=o.receiving_address;
-  $('qr').innerHTML='';
-  new QRCode($('qr'),{text:'tron:'+o.receiving_address,width:134,height:134,colorDark:'#000',colorLight:'#fff'});
-  $('verifyStatus').textContent='Order '+o.id+' — Send '+Number(o.amount_usdt).toFixed(6)+' USDT';
-  $('paymentBox').scrollIntoView({behavior:'smooth',block:'center'});
-}
-
-function verifyPayment(){
-  if(!currentOrder) return toast('Create a payment order first');
-  const tx=$('txHash').value.trim();
-  if(!/^[a-fA-F0-9]{64}$/.test(tx)) return toast('Enter a valid 64-character TRON transaction hash');
-  
-  $('verifyStatus').textContent='Submitting Hash...';
-  setTimeout(() => {
-    currentOrder.status = 'Processing';
-    $('orderStatus').textContent = 'Processing';
-    $('verifyStatus').textContent = 'Transaction submitted for verification';
-    modal('⏳','Hash Submitted','Your transaction hash '+tx.slice(0,8)+'... has been submitted.');
-  }, 1000);
-}
-
-function copyAddress(){
-  navigator.clipboard.writeText(RECEIVING_ADDRESS);
-  toast('Address copied');
-}
-
-function copyAmount(){
-  if(currentOrder){
-    navigator.clipboard.writeText(Number(currentOrder.amount_usdt).toFixed(6));
-    toast('Amount copied');
-  }
-}
-
-function connectTelegram(){
-  toast('Telegram feature coming soon');
-}
-
-function scrollTop(){
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-</script>
+    function resetUI() {
+      imageInput.value = '';
+      resultContainer.classList.add('hidden');
+      loadingUi.classList.add('hidden');
+      uploadUi.classList.remove('hidden');
+    }
+  </script>
 </body>
 </html>
